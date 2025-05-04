@@ -32,10 +32,12 @@
             <div class="px-4 py-6 sm:px-0">
                 <div class="flex justify-between items-center">
                     <h1 class="text-3xl font-bold text-gray-900">Properties</h1>
-                    <a th:href="@{/properties/new}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Add Property
-                    </a>
+                    <div sec:authorize="isAuthenticated()">
+                        <a th:href="@{/properties/new}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Add Property
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -99,7 +101,7 @@
                         <div class="mt-6 flex justify-between items-center">
                             <a th:href="@{/properties/{id}(id=${property.id})}" 
                                class="text-indigo-600 hover:text-indigo-900 font-medium">View Details</a>
-                            <div class="flex space-x-2">
+                            <div class="flex space-x-2" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.username == property.owner.username}">
                                 <a th:href="@{/properties/{id}/edit(id=${property.id})}" 
                                    class="text-gray-600 hover:text-gray-900">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

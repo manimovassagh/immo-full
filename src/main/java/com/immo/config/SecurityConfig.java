@@ -22,8 +22,27 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/properties", "/properties/{id}", "/users/register", "/register", "/login", 
-                               "/css/**", "/js/**", "/images/**", "/photos/**").permitAll()
+                // Public access paths
+                .requestMatchers(
+                    "/",
+                    "/properties",
+                    "/properties/{id}",
+                    "/users/register",
+                    "/register",
+                    "/login",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/photos/**"
+                ).permitAll()
+                // Protected paths that require authentication
+                .requestMatchers(
+                    "/properties/new",
+                    "/properties/*/edit",
+                    "/properties/*/delete",
+                    "/messages/**",
+                    "/users/profile"
+                ).authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
