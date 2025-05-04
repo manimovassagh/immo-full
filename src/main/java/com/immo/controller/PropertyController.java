@@ -34,7 +34,7 @@ public class PropertyController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("property", new PropertyDTO("", "", "", null, null, null, null));
-        return "properties/create";
+        return "properties/form";
     }
 
     @PostMapping
@@ -62,7 +62,7 @@ public class PropertyController {
             property.getArea()
         );
         model.addAttribute("property", propertyDTO);
-        return "properties/edit";
+        return "properties/form";
     }
 
     @PostMapping("/{id}")
