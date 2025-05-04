@@ -12,9 +12,11 @@ com/immo/repository/UserRepository.class
 com/immo/ImmoApplication.class
 com/immo/service/MessageService.class
 com/immo/entity/User.class
+com/immo/controller/AuthController.class
 com/immo/entity/Property.class
 com/immo/repository/MessageRepository.class
 com/immo/dto/MessageDTO.class
 com/immo/service/UserService.class
+com/immo/config/DataInitializer.class
 com/immo/controller/UserController.class
 com/immo/service/impl/PropertyServiceImpl.class
