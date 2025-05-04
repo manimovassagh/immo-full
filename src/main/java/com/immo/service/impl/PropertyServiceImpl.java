@@ -34,6 +34,7 @@ public class PropertyServiceImpl implements PropertyService {
         property.setBedrooms(propertyDTO.bedrooms());
         property.setBathrooms(propertyDTO.bathrooms());
         property.setArea(propertyDTO.area());
+        property.setPhotoFileName(propertyDTO.photoFileName());
         property.setOwner(owner);
 
         return propertyRepository.save(property);
@@ -67,6 +68,9 @@ public class PropertyServiceImpl implements PropertyService {
         property.setBedrooms(propertyDTO.bedrooms());
         property.setBathrooms(propertyDTO.bathrooms());
         property.setArea(propertyDTO.area());
+        if (propertyDTO.photoFileName() != null) {
+            property.setPhotoFileName(propertyDTO.photoFileName());
+        }
 
         return propertyRepository.save(property);
     }

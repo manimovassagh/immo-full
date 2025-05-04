@@ -40,6 +40,8 @@ public class Property {
 
     private Double area; // in square meters
 
+    private String photoFileName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -110,6 +112,14 @@ public class Property {
 
     public void setArea(Double area) {
         this.area = area;
+    }
+
+    public String getPhotoFileName() {
+        return photoFileName;
+    }
+
+    public void setPhotoFileName(String photoFileName) {
+        this.photoFileName = photoFileName;
     }
 
     public User getOwner() {

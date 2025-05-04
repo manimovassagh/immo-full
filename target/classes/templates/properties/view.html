@@ -47,16 +47,14 @@
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                 <!-- Property Image -->
                 <div class="relative h-96 bg-gray-200">
-                    <img th:src="@{'/photos/' + ${property.id == 1 ? 'pexels-photo-186077.jpeg' : 
-                                           property.id == 2 ? 'pexels-photo-323780.webp' : 
-                                           'pexels-photo-1396122.webp'}}"
+                    <img th:if="${property.photoFileName != null}"
+                         th:src="@{'/photos/' + ${property.photoFileName}}"
                          th:alt="${property.title}"
-                         class="w-full h-full object-cover"
-                         onerror="this.onerror=null; this.src='/photos/pexels-photo-101808.webp';"
-                         th:data-property-id="${property.id}"
-                         th:data-image="${property.id == 1 ? 'pexels-photo-186077.jpeg' : 
-                                       property.id == 2 ? 'pexels-photo-323780.webp' : 
-                                       'pexels-photo-1396122.webp'}">
+                         class="w-full h-full object-cover">
+                    <img th:unless="${property.photoFileName != null}"
+                         src="/photos/pexels-photo-101808.webp"
+                         th:alt="${property.title}"
+                         class="w-full h-full object-cover">
                     <!-- Debug info -->
                     <div class="absolute bottom-0 left-0 bg-black bg-opacity-50 text-white text-xs p-1">
                         <span th:text="${'Property ID: ' + property.id + ' | Image: ' + (property.id == 1 ? 'pexels-photo-186077.jpeg' : 

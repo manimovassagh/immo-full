@@ -1,91 +1,48 @@
 package com.immo.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import com.immo.service.UserService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public SecurityConfig(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Public access paths
-                .requestMatchers(
-                    "/",
-                    "/properties",
-                    "/properties/{id}",
-                    "/users/register",
-                    "/register",
-                    "/login",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/photos/**"
-                ).permitAll()
-                // Protected paths that require normal user role
-                .requestMatchers(
-                    "/properties/new",
-                    "/properties/*/edit",
-                    "/properties/*/delete",
-                    "/messages/**",
-                    "/users/profile"
-                ).hasAnyRole("USER", "ADMIN")
-                // Admin only paths
-                .requestMatchers(
-                    "/admin/**",
-                    "/users/list",
-                    "/users/*/delete"
-                ).hasRole("ADMIN")
+                .requestMatchers("/", "/properties", "/properties/{id}", "/css/**", "/js/**", "/images/**", "/photos/**").permitAll()
+                .requestMatchers("/properties/new", "/properties/{id}/edit", "/properties/{id}/delete").authenticated()
+                .requestMatchers("/messages/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/properties")
+                .defaultSuccessUrl("/")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/")
                 .permitAll()
             );
 
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        // Create admin user
-        UserDetails admin = User.builder()
-            .username("admin")
-            .password(passwordEncoder().encode("admin123"))
-            .roles("USER", "ADMIN")
-            .build();
-
-        // Create normal user
-        UserDetails user = User.builder()
-            .username("user")
-            .password(passwordEncoder().encode("user123"))
-            .roles("USER")
-            .build();
-
-        return new InMemoryUserDetailsManager(admin, user);
     }
 } 

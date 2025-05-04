@@ -15,24 +15,35 @@ import java.time.LocalDateTime;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    @Autowired
-    private PropertyRepository propertyRepository;
+    private final PropertyRepository propertyRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public DataInitializer(PropertyRepository propertyRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.propertyRepository = propertyRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public void run(String... args) {
-        // Create sample user if not exists
+        // Create admin user if not exists
         if (!userRepository.existsByUsername("admin")) {
             User admin = new User();
             admin.setUsername("admin");
             admin.setEmail("admin@example.com");
-            admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setPassword(passwordEncoder.encode("admin123"));
             userRepository.save(admin);
+        }
+
+        // Create normal user if not exists
+        if (!userRepository.existsByUsername("user")) {
+            User user = new User();
+            user.setUsername("user");
+            user.setEmail("user@example.com");
+            user.setPassword(passwordEncoder.encode("user123"));
+            userRepository.save(user);
         }
 
         // Add sample properties if none exist

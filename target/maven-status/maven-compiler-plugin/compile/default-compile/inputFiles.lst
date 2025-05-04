@@ -1,7 +1,9 @@
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/dto/MessageDTO.java
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/dto/UserDTO.java
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/service/UserService.java
+/Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/config/PasswordConfig.java
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/dto/PropertyDTO.java
+/Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/service/impl/UserDetailsServiceImpl.java
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/entity/User.java
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/service/impl/MessageServiceImpl.java
 /Users/mani/Documents/Projects/immo-full/src/main/java/com/immo/service/PropertyService.java

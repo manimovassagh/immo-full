@@ -2,8 +2,12 @@ package com.immo.controller;
 
 import com.immo.dto.MessageDTO;
 import com.immo.entity.Message;
+import com.immo.entity.User;
 import com.immo.service.MessageService;
+import com.immo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +21,15 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping
     public String listMessages(Model model) {
-        // TODO: Get current user ID from security context
-        Long currentUserId = 1L; // Temporary
-        List<Message> sentMessages = messageService.findBySenderId(currentUserId);
-        List<Message> receivedMessages = messageService.findByReceiverId(currentUserId);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userService.findByUsername(auth.getName());
+        List<Message> sentMessages = messageService.findBySenderId(currentUser.getId());
+        List<Message> receivedMessages = messageService.findByReceiverId(currentUser.getId());
         
         model.addAttribute("sentMessages", sentMessages);
         model.addAttribute("receivedMessages", receivedMessages);
@@ -40,9 +47,9 @@ public class MessageController {
     @PostMapping("/send")
     public String sendMessage(@ModelAttribute("message") MessageDTO messageDTO) {
         try {
-            // TODO: Get current user ID from security context
-            Long currentUserId = 1L; // Temporary
-            Message message = messageService.sendMessage(messageDTO, currentUserId);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = userService.findByUsername(auth.getName());
+            Message message = messageService.sendMessage(messageDTO, currentUser.getId());
             return "redirect:/messages/" + message.getId() + "?sent";
         } catch (IllegalArgumentException e) {
             return "redirect:/properties/" + messageDTO.propertyId() + "?error=" + e.getMessage();

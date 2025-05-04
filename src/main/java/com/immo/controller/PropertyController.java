@@ -2,13 +2,25 @@ package com.immo.controller;
 
 import com.immo.dto.PropertyDTO;
 import com.immo.entity.Property;
+import com.immo.entity.User;
 import com.immo.service.PropertyService;
+import com.immo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/properties")
@@ -16,6 +28,11 @@ public class PropertyController {
 
     @Autowired
     private PropertyService propertyService;
+
+    @Autowired
+    private UserService userService;
+
+    private final Path photoStorageLocation = Paths.get("src/main/resources/static/photos");
 
     @GetMapping
     public String listProperties(Model model) {
@@ -33,18 +50,41 @@ public class PropertyController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("property", new PropertyDTO("", "", "", null, null, null, null));
+        model.addAttribute("property", PropertyDTO.createEmpty());
         return "properties/form";
     }
 
     @PostMapping
-    public String createProperty(@ModelAttribute("property") PropertyDTO propertyDTO) {
+    public String createProperty(@Valid @ModelAttribute("property") PropertyDTO propertyDTO, 
+                               @RequestParam("photo") MultipartFile photo,
+                               BindingResult result) {
+        if (result.hasErrors()) {
+            return "properties/form";
+        }
+        
         try {
-            // TODO: Get current user ID from security context
-            Long currentUserId = 1L; // Temporary
-            propertyService.createProperty(propertyDTO, currentUserId);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = userService.findByUsername(auth.getName());
+            
+            // Save the photo
+            if (photo != null && !photo.isEmpty()) {
+                String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                Files.copy(photo.getInputStream(), photoStorageLocation.resolve(fileName));
+                propertyDTO = new PropertyDTO(
+                    propertyDTO.title(),
+                    propertyDTO.description(),
+                    propertyDTO.address(),
+                    propertyDTO.price(),
+                    propertyDTO.bedrooms(),
+                    propertyDTO.bathrooms(),
+                    propertyDTO.area(),
+                    fileName
+                );
+            }
+            
+            propertyService.createProperty(propertyDTO, currentUser.getId());
             return "redirect:/properties?created";
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IOException e) {
             return "redirect:/properties/new?error=" + e.getMessage();
         }
     }
@@ -59,18 +99,42 @@ public class PropertyController {
             property.getPrice(),
             property.getBedrooms(),
             property.getBathrooms(),
-            property.getArea()
+            property.getArea(),
+            property.getPhotoFileName()
         );
         model.addAttribute("property", propertyDTO);
         return "properties/form";
     }
 
     @PostMapping("/{id}")
-    public String updateProperty(@PathVariable Long id, @ModelAttribute("property") PropertyDTO propertyDTO) {
+    public String updateProperty(@PathVariable Long id, 
+                               @Valid @ModelAttribute("property") PropertyDTO propertyDTO,
+                               @RequestParam("photo") MultipartFile photo,
+                               BindingResult result) {
+        if (result.hasErrors()) {
+            return "properties/form";
+        }
+        
         try {
+            // Save the photo if a new one is uploaded
+            if (photo != null && !photo.isEmpty()) {
+                String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                Files.copy(photo.getInputStream(), photoStorageLocation.resolve(fileName));
+                propertyDTO = new PropertyDTO(
+                    propertyDTO.title(),
+                    propertyDTO.description(),
+                    propertyDTO.address(),
+                    propertyDTO.price(),
+                    propertyDTO.bedrooms(),
+                    propertyDTO.bathrooms(),
+                    propertyDTO.area(),
+                    fileName
+                );
+            }
+            
             propertyService.updateProperty(id, propertyDTO);
             return "redirect:/properties/" + id + "?updated";
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IOException e) {
             return "redirect:/properties/" + id + "/edit?error=" + e.getMessage();
         }
     }

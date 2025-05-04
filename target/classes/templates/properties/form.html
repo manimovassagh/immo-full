@@ -6,27 +6,34 @@
     <title th:text="${property != null ? 'Edit Property - Immo' : 'Add Property - Immo'}">Property Form - Immo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50">
-    <div class="min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-lg">
+<body class="bg-gray-100">
+    <div class="min-h-full">
+        <nav class="bg-gray-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="flex-shrink-0 flex items-center">
-                            <a href="/" class="text-2xl font-bold text-indigo-600">Immo</a>
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <a href="/" class="text-white font-bold text-xl">Immo</a>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a href="/properties" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Properties</a>
+                                <a href="/messages" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" sec:authorize="isAuthenticated()">Messages</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center">
-                        <form th:action="@{/logout}" method="post" class="ml-4">
-                            <button type="submit" class="text-gray-600 hover:text-gray-900">Logout</button>
-                        </form>
+                    <div class="hidden md:block">
+                        <div class="ml-4 flex items-center md:ml-6">
+                            <a href="/login" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" sec:authorize="!isAuthenticated()">Login</a>
+                            <form th:action="@{/logout}" method="post" class="inline" sec:authorize="isAuthenticated()">
+                                <button type="submit" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Logout</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <!-- Main Content -->
         <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <!-- Back Button -->
             <div class="px-4 sm:px-0 mb-6">
@@ -45,6 +52,20 @@
                     <p class="mt-1 max-w-2xl text-sm text-gray-500">Fill in the details below</p>
                 </div>
 
+                <!-- Error Messages -->
+                <div th:if="${param.error}" class="px-4 py-3 bg-red-50 border-l-4 border-red-400">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700" th:text="${param.error}">Error message</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
                     <form th:action="${property != null ? '/properties/' + property.id : '/properties'}" 
                           th:object="${property}" method="post" class="space-y-6">
@@ -56,7 +77,7 @@
                                 <div class="mt-1">
                                     <input type="text" name="title" id="title" th:field="*{title}"
                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                           required>
+                                           th:class="${#fields.hasErrors('title')} ? 'shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-red-300 rounded-md' : 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md'">
                                 </div>
                                 <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
                             </div>
@@ -67,7 +88,7 @@
                                 <div class="mt-1">
                                     <textarea id="description" name="description" rows="3" th:field="*{description}"
                                               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                              required></textarea>
+                                              th:class="${#fields.hasErrors('description')} ? 'shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-red-300 rounded-md' : 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md'"></textarea>
                                 </div>
                                 <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
                             </div>
@@ -78,7 +99,7 @@
                                 <div class="mt-1">
                                     <input type="text" name="address" id="address" th:field="*{address}"
                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                           required>
+                                           th:class="${#fields.hasErrors('address')} ? 'shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-red-300 rounded-md' : 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md'">
                                 </div>
                                 <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
                             </div>
@@ -86,13 +107,10 @@
                             <!-- Price -->
                             <div class="sm:col-span-3">
                                 <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-                                <div class="mt-1 relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <input type="number" name="price" id="price" th:field="*{price}" step="0.01"
-                                           class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
-                                           required>
+                                <div class="mt-1">
+                                    <input type="number" step="0.01" name="price" id="price" th:field="*{price}"
+                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                           th:class="${#fields.hasErrors('price')} ? 'shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-red-300 rounded-md' : 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md'">
                                 </div>
                                 <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
                             </div>
@@ -103,7 +121,7 @@
                                 <div class="mt-1">
                                     <input type="number" name="bedrooms" id="bedrooms" th:field="*{bedrooms}"
                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                           required>
+                                           th:class="${#fields.hasErrors('bedrooms')} ? 'shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-red-300 rounded-md' : 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md'">
                                 </div>
                                 <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('bedrooms')}" th:errors="*{bedrooms}"></div>
                             </div>
@@ -114,7 +132,7 @@
                                 <div class="mt-1">
                                     <input type="number" name="bathrooms" id="bathrooms" th:field="*{bathrooms}"
                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                           required>
+                                           th:class="${#fields.hasErrors('bathrooms')} ? 'shadow-sm focus:ring-red-500 focus:border-red-500 block w-full sm:text-sm border-red-300 rounded-md' : 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md'">
                                 </div>
                                 <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('bathrooms')}" th:errors="*{bathrooms}"></div>
                             </div>
@@ -123,24 +141,26 @@
                             <div class="sm:col-span-1">
                                 <label for="area" class="block text-sm font-medium text-gray-700">Area (m²)</label>
                                 <div class="mt-1">
-                                    <input type="number" name="area" id="area" th:field="*{area}" step="0.01"
-                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                           required>
+                                    <input type="number" step="0.01" name="area" id="area" th:field="*{area}"
+                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
                                 </div>
-                                <div class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('area')}" th:errors="*{area}"></div>
+                            </div>
+
+                            <!-- Photo Upload -->
+                            <div class="sm:col-span-6">
+                                <label for="photo" class="block text-sm font-medium text-gray-700">Property Photo</label>
+                                <div class="mt-1">
+                                    <input type="file" name="photo" id="photo" accept="image/*"
+                                           class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500">Upload a photo of your property (max 10MB)</p>
                             </div>
                         </div>
 
                         <div class="pt-5">
                             <div class="flex justify-end">
-                                <a href="/properties"
-                                   class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Cancel
-                                </a>
-                                <button type="submit"
-                                        class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    <span th:text="${property != null ? 'Update Property' : 'Add Property'}">Save</span>
-                                </button>
+                                <a href="/properties" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</a>
+                                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
                             </div>
                         </div>
                     </form>
