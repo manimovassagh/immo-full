@@ -35,14 +35,20 @@ public class SecurityConfig {
                     "/images/**",
                     "/photos/**"
                 ).permitAll()
-                // Protected paths that require authentication
+                // Protected paths that require normal user role
                 .requestMatchers(
                     "/properties/new",
                     "/properties/*/edit",
                     "/properties/*/delete",
                     "/messages/**",
                     "/users/profile"
-                ).authenticated()
+                ).hasAnyRole("USER", "ADMIN")
+                // Admin only paths
+                .requestMatchers(
+                    "/admin/**",
+                    "/users/list",
+                    "/users/*/delete"
+                ).hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -66,12 +72,20 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
+        // Create admin user
         UserDetails admin = User.builder()
             .username("admin")
-            .password(passwordEncoder().encode("admin"))
+            .password(passwordEncoder().encode("admin123"))
             .roles("USER", "ADMIN")
             .build();
 
-        return new InMemoryUserDetailsManager(admin);
+        // Create normal user
+        UserDetails user = User.builder()
+            .username("user")
+            .password(passwordEncoder().encode("user123"))
+            .roles("USER")
+            .build();
+
+        return new InMemoryUserDetailsManager(admin, user);
     }
 } 
