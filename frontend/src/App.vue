@@ -1,20 +1,44 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
+import { useAuthStore } from './stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/')
+}
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="min-h-screen bg-gray-50">
+    <nav class="bg-white shadow">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <router-link to="/" class="flex items-center text-xl font-bold text-primary-600">
+              Property Rental
+            </router-link>
+          </div>
+          <div class="flex items-center space-x-4">
+            <template v-if="!authStore.isAuthenticated">
+              <router-link to="/login" class="btn btn-secondary">Sign in</router-link>
+              <router-link to="/register" class="btn btn-primary">Register</router-link>
+            </template>
+            <template v-else>
+              <router-link to="/properties" class="btn btn-secondary">Properties</router-link>
+              <button @click="handleLogout" class="btn btn-primary">Logout</button>
+            </template>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+    <main>
+      <router-view></router-view>
+    </main>
+  </div>
 </template>
 
 <style scoped>
